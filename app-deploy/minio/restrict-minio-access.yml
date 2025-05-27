@@ -1,0 +1,26 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-minio-access
+spec:
+  validationFailureAction: Enforce
+  rules:
+    - name: allow-minio-credentials-only-for-data-service
+      match:
+        resources:
+          kinds:
+            - Pod
+          namespaces:
+            - application
+      validate:
+        message: "Only pods labeled 'app=data-service' can have MinIO credentials environment variables."
+        deny:
+          conditions:
+            - key: "{{ request.object.metadata.labels.app }}"
+              operator: NotEquals
+              value: "data-service"
+            - key: "{{ request.object.spec.containers[*].env[*].name }}"
+              operator: AnyIn
+              value:
+                - "AWS_ACCESS_KEY_ID"
+                - "AWS_SECRET_ACCESS_KEY"

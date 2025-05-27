@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: auth-service
+  namespace: application
+  labels:
+    app: auth-service
+spec:
+  serviceAccountName: auth-service-sa
+  containers:
+  - name: awscli
+    image: amazon/aws-cli
+    command: [ "sleep" ]
+    args: [ "3600" ]
+    env:
+    - name: AWS_DEFAULT_REGION
+      value: "us-east-1"
+    # Removed AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY env vars
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+      limits:
+        cpu: "200m"
+        memory: "256Mi"
+  restartPolicy: Never
